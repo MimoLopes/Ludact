@@ -8,25 +8,14 @@ public class SpaceshipManager : PoolingMachine
 {
     [SerializeField] private GameObject _spaceshipPrefab;
     [SerializeField] private int _startInstancesQuantity = 1;
+    [SerializeField] private float _minVelocity, _maxVelocity;
     private int[] _fibonacciSequence = new int[99];
     private int _currentFibonacciSequence = 0;
-    private Queue<GameObject> _spaceshipList = new Queue<GameObject>();
-    private static SpaceshipManager _instance;
-    public static SpaceshipManager Instance { get { return _instance; } }
+    private Queue<Spaceship> _spaceshipList = new Queue<Spaceship>();
 
     void Awake()
     {
-        if (_instance == null)
-        {
-            _instance = this;
-            DontDestroyOnLoad(this.gameObject);
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
-
-        PopulatePool(_spaceshipPrefab, _startInstancesQuantity);
+        PopulatePool(_spaceshipPrefab, CreateNewSpaceShip, _startInstancesQuantity);
 
         _fibonacciSequence = Calc.FibonacciSequence(_fibonacciSequence.Length);
     }
@@ -54,22 +43,58 @@ public class SpaceshipManager : PoolingMachine
         {
             if (_poolQueue.Count == 0)
             {
-                CreatePoolObject(_spaceshipPrefab);
+                CreatePoolObject(_spaceshipPrefab, CreateNewSpaceShip);
             }
 
-            _spaceshipList.Enqueue(GetFromPool());
+            Spaceship newSpaceship = GetFromPool() as Spaceship;
+
+            float angle = GetRandomAngle();
+
+            newSpaceship.SetPosition(GetSpawnPosition(angle));
+            newSpaceship.SetRotation(GetSpawnRotation(angle));
+            newSpaceship.SetVelocity(UnityEngine.Random.Range(_minVelocity, _maxVelocity));
+
+            _spaceshipList.Enqueue(newSpaceship);
 
             RecursiveCreateSpaceship(instancesQuantity - 1);
         }
     }
 
+    public Vector3 GetSpawnPosition(float angle)
+    {
+        float distance = UnityEngine.Random.Range(5f, 15f);
+        
+        float zPosition = UnityEngine.Random.Range(0f, 10f);
+
+        Vector3 position = (new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * distance) + new Vector3(0f, 0f, zPosition);
+
+        return position;
+    }
+
+    public Quaternion GetSpawnRotation(float angle)
+    {
+        return Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg);
+    }
+
+    public float GetRandomAngle()
+    {
+        return UnityEngine.Random.Range(-Mathf.PI, Mathf.PI);
+    }
+
+    private PoolObject CreateNewSpaceShip(GameObject associatedGameObject)
+    {
+        Spaceship newSpaceShip = new Spaceship(associatedGameObject);
+
+        return newSpaceShip;
+    }
+
     private int GetFibonacciValue(ref int[] fibonacciSequence, int sequenceTarget)
     {
-        if(sequenceTarget < 0)
+        if (sequenceTarget < 0)
         {
             return 0;
         }
-        
+
         if (fibonacciSequence.Length <= sequenceTarget)
         {
             Array.Resize(ref fibonacciSequence, fibonacciSequence.Length + 1);
