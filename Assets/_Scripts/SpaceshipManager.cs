@@ -8,13 +8,15 @@ public class SpaceshipManager : PoolingMachine
 {
     [SerializeField] private GameObject _spaceshipPrefab;
     [SerializeField] private int _startInstancesQuantity = 1;
-    [SerializeField] private float _minVelocity, _maxVelocity;
+    [SerializeField] private float _minVelocity, _maxVelocity, _velcoityIncrease = 0.1f;
     private int[] _fibonacciSequence = new int[99];
     private int _currentFibonacciSequence = 0;
     private Queue<Spaceship> _spaceshipList = new Queue<Spaceship>();
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         PopulatePool(_spaceshipPrefab, CreateNewSpaceShip, _startInstancesQuantity);
 
         _fibonacciSequence = Calc.FibonacciSequence(_fibonacciSequence.Length);
@@ -48,11 +50,14 @@ public class SpaceshipManager : PoolingMachine
 
             Spaceship newSpaceship = GetFromPool() as Spaceship;
 
-            float angle = GetRandomAngle();
+            float angle = Calc.RandomAngle();
+            Vector3 translationPoint = Calc.RandomPosition(25f);
 
-            newSpaceship.SetPosition(GetSpawnPosition(angle));
+            newSpaceship.SetPosition(GetSpawnPosition(angle, translationPoint));
             newSpaceship.SetRotation(GetSpawnRotation(angle));
+            newSpaceship.SetTranslationPoint(translationPoint);
             newSpaceship.SetVelocity(UnityEngine.Random.Range(_minVelocity, _maxVelocity));
+            newSpaceship.SetVelcoityIncrease(_velcoityIncrease);
 
             _spaceshipList.Enqueue(newSpaceship);
 
@@ -60,25 +65,16 @@ public class SpaceshipManager : PoolingMachine
         }
     }
 
-    public Vector3 GetSpawnPosition(float angle)
+    private Vector3 GetSpawnPosition(float angle, Vector3 position)
     {
-        float distance = UnityEngine.Random.Range(5f, 15f);
-        
-        float zPosition = UnityEngine.Random.Range(0f, 10f);
+        float distance = 25f;
 
-        Vector3 position = (new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * distance) + new Vector3(0f, 0f, zPosition);
-
-        return position;
+        return (new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * distance) + position;
     }
 
-    public Quaternion GetSpawnRotation(float angle)
+    private Quaternion GetSpawnRotation(float angle)
     {
         return Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg);
-    }
-
-    public float GetRandomAngle()
-    {
-        return UnityEngine.Random.Range(-Mathf.PI, Mathf.PI);
     }
 
     private PoolObject CreateNewSpaceShip(GameObject associatedGameObject)

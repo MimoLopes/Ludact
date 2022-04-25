@@ -44,9 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8d50a10fed96984ea22032e9578e543, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _velocity: 0
+  _baseVelocity: 0
   _translationPosition: {x: 0, y: 0, z: 0}
   _nexTranslationPosition: {x: 0, y: 0, z: 0}
+  _velcoityIncrease: 1
 --- !u!1001 &7027946460990324887
 PrefabInstance:
   m_ObjectHideFlags: 0

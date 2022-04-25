@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class PoolingMachine : MonoBehaviour
+public abstract class PoolingMachine : Singleton<PoolingMachine>
 {
     protected Queue<PoolObject> _poolQueue = new Queue<PoolObject>();
     protected delegate PoolObject GetNewPoolObject(GameObject AssociatedGameObject);

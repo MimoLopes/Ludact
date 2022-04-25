@@ -18,8 +18,18 @@ public class Spaceship : PoolObject
         _associatedGameObject.transform.rotation = rotation;
     }
 
+    public void SetTranslationPoint(Vector3 translationPosition)
+    {
+        _spaceShipController.TranslationPoin = translationPosition;
+    }
+
     public void SetVelocity(float velocity)
     {
-        _spaceShipController.SetVelocity(velocity);
+        _spaceShipController.Velocity = velocity;
+    }
+
+    public void SetVelcoityIncrease(float velocityIncrease)
+    {
+        _spaceShipController.VelcoityIncrease = velocityIncrease;
     }
 }
